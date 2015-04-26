@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////
 //    OpenGL ES convenience functions for platonic.h
 //
-void drawPlatonicSolidFaces(unsigned short solidType){
+void drawPlatonicSolidFaces(char solidType){
 	const float *vertices;
 	const unsigned short *faces;
 	unsigned int numFaces;
@@ -46,6 +46,11 @@ void drawPlatonicSolidFaces(unsigned short solidType){
 		numFaces = DODECAHEDRON_TRIANGLE_FACES;
 		faces = _dodecahedron_triangle_faces;
 	}
+	else if(solidType == -1){
+		vertices = _tetrahedron_dual_points;
+		numFaces = TETRAHEDRON_FACES;
+		faces = _tetrahedron_faces;
+	}
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 0, vertices);
@@ -54,7 +59,7 @@ void drawPlatonicSolidFaces(unsigned short solidType){
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
-void drawPlatonicSolidLines(unsigned short solidType){
+void drawPlatonicSolidLines(char solidType){
 	const float *vertices;
 	const unsigned short *lines;
 	unsigned int numLines;
@@ -83,6 +88,11 @@ void drawPlatonicSolidLines(unsigned short solidType){
 		numLines = DODECAHEDRON_LINES;
 		lines = _dodecahedron_lines;
 	}
+	else if(solidType == -1){
+		vertices = _tetrahedron_dual_points;
+		numLines = TETRAHEDRON_LINES;
+		lines = _tetrahedron_lines;
+	}
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 0, vertices);
@@ -91,7 +101,7 @@ void drawPlatonicSolidLines(unsigned short solidType){
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
-void drawPlatonicSolidPoints(unsigned short solidType){
+void drawPlatonicSolidPoints(char solidType){
 	const float *vertices;
 	unsigned int numVertices;
 	if(solidType == 0){
@@ -113,6 +123,10 @@ void drawPlatonicSolidPoints(unsigned short solidType){
 	else if(solidType == 4){
 		vertices = _dodecahedron_points;
 		numVertices = DODECAHEDRON_POINTS;
+	}
+	else if(solidType == -1){
+		vertices = _tetrahedron_dual_points;
+		numVertices = TETRAHEDRON_POINTS;
 	}
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
@@ -167,7 +181,7 @@ static GLfloat light_position3[] = { -5.0, -5.0, 5.0, 0.0 };
 
 #define STEP .10f  // WALKING SPEED. @60fps, walk speed = 6 units/second
 
-unsigned short selected_solid = 0;
+char selected_solid = 0;
 unsigned short seeThrough = 0;
 
 
@@ -365,6 +379,7 @@ void keyboardDown(unsigned char key, int x, int y){
 	else if(key == '3') selected_solid = 2;
 	else if(key == '4') selected_solid = 3;
 	else if(key == '5') selected_solid = 4;
+	else if(key == '0') selected_solid = -1;
 	else if(key == 'p'){
 		PERSPECTIVE = 1;
 		// mouseTotalOffsetX = mouseTotalOffsetY = 0;

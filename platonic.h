@@ -23,20 +23,7 @@
 //                                                                //
 ////////////////////////////////////////////////////////////////////
 
-//  flo_t : type cast to float, double, or long double, for quick changes
-//    if this is confusing, just replace with "flo_t" with "float"
-#define _float_precision 32  // 32:float, 64:double, 128:long double
-
-#if _float_precision==128
-typedef long double flo_t;
-#elif _float_precision==64
-typedef double flo_t;
-#elif _float_precision==32
-typedef float flo_t;
-#else
-typedef float flo_t;
-#endif
-
+// for higher precision, replace all "float" with "double" or "long double"
 
 #define TETRAHEDRON_POINTS 4
 #define TETRAHEDRON_LINES 6
@@ -60,7 +47,8 @@ typedef float flo_t;
 #define DODECAHEDRON_FACES 12
 #define DODECAHEDRON_TRIANGLE_FACES 36
 
-// further information
+// dihedral angle is the angle between two adjacent faces,
+//  circling under and running perpendicular to the edge dividing the faces
 #define TETRAHEDRON_DIHEDRAL_ANGLE   70.52877936550930863075400066
 #define OCTAHEDRON_DIHEDRAL_ANGLE   109.47122063449069136924599934
 #define HEXAHEDRON_DIHEDRAL_ANGLE    90
@@ -68,7 +56,7 @@ typedef float flo_t;
 #define DODECAHEDRON_DIHEDRAL_ANGLE 116.56505117707798935157219372
 
 // inradius is the radius of the inscribed sphere
-// the distance from center to midpoint of a face
+// or the distance from center to midpoint of a face
 #define TETRAHEDRON_INRADIUS    0.333333333333333333333333333333
 #define OCTAHEDRON_INRADIUS     0.577350269189625764509148780502
 #define HEXAHEDRON_INRADIUS     0.5773502691896257645091487805
@@ -87,14 +75,12 @@ typedef float flo_t;
 #define ICOSAHEDRON_VOLUME    2.53615071012040952564383822238
 #define DODECAHEDRON_VOLUME   2.78516386312262296729255491273
 
-// #define TETRAHEDRON_
-// #define OCTAHEDRON_
-// #define HEXAHEDRON_
-// #define ICOSAHEDRON_
-// #define DODECAHEDRON_
-
-
-const flo_t _tetrahedron_points[TETRAHEDRON_POINTS*3] = { 
+const float _tetrahedron_dual_points[TETRAHEDRON_POINTS*3] = { 
+	-1.0,               0.0,               0.0,               
+	0.333333333333333,  0.942809041582063, 0.0,               
+	0.333333333333333,  -0.471404520791032, 0.816496580927726, 
+	0.333333333333333,  -0.471404520791032, -0.816496580927726};
+const float _tetrahedron_points[TETRAHEDRON_POINTS*3] = { 
 	1.0,                 0.0,               0.0,               
 	-0.333333333333333, -0.942809041582063, 0.0,               
 	-0.333333333333333,  0.471404520791032, 0.816496580927726, 
@@ -106,7 +92,7 @@ const unsigned short _tetrahedron_faces[TETRAHEDRON_FACES*3] = {
 	2, 1, 3,  
 	2, 3, 0,  
 	3, 1, 0};
-const flo_t _octahedron_points[OCTAHEDRON_POINTS*3] = {
+const float _octahedron_points[OCTAHEDRON_POINTS*3] = {
 	1.0, 0.0, 0.0,
 	0.0, 1.0, 0.0,
 	0.0, 0.0, 1.0,
@@ -124,7 +110,7 @@ const unsigned short _octahedron_faces[OCTAHEDRON_FACES*3] = {
 	1, 3, 5, 
 	4, 5, 3, 
 	4, 3, 2};
-const flo_t _hexahedron_points[HEXAHEDRON_POINTS*3] = { 
+const float _hexahedron_points[HEXAHEDRON_POINTS*3] = { 
 	0.57735026918963, 0.57735026918963, 0.57735026918963,
 	0.57735026918963, 0.57735026918963, -0.57735026918963,
 	0.57735026918963, -0.57735026918963, -0.57735026918963,
@@ -156,7 +142,7 @@ const unsigned short _hexahedron_triangle_faces[HEXAHEDRON_TRIANGLE_FACES*3] = {
 	 6, 3, 2,
 	1, 5, 6,
 	 6, 2, 1};
-const flo_t _icosahedron_points[ICOSAHEDRON_POINTS*3] = {
+const float _icosahedron_points[ICOSAHEDRON_POINTS*3] = {
 	0.447213595499958, -0.276393202250021, 0.850650808352040,
 	-0.447213595499958, 0.276393202250021, 0.850650808352040,
 	-0.447213595499958, 0.276393202250021, -0.850650808352040,
@@ -194,7 +180,7 @@ const unsigned short _icosahedron_faces[ICOSAHEDRON_FACES*3] = {
 	10, 6, 5, 
 	10, 5, 1,     // pair 1
 	10, 2, 6};
-const flo_t _dodecahedron_points[DODECAHEDRON_POINTS * 3] = {
+const float _dodecahedron_points[DODECAHEDRON_POINTS * 3] = {
 	-0.794657,   0.491120, 0.371929,
 	-0.187594,   0.794649, -0.601791,
 	-0.794657,   0.491120, -0.371929,
