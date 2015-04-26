@@ -15,7 +15,7 @@
 
 
 ////////////////////////////////////////////////////////
-//       OpenGL ES draw functions for platonic.h
+//    OpenGL ES convenience functions for platonic.h
 //
 void drawPlatonicSolidFaces(unsigned short solidType){
 	const float *vertices;
@@ -91,6 +91,37 @@ void drawPlatonicSolidLines(unsigned short solidType){
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
+void drawPlatonicSolidPoints(unsigned short solidType){
+	const float *vertices;
+	unsigned int numVertices;
+	if(solidType == 0){
+		vertices = _tetrahedron_points;
+		numVertices = TETRAHEDRON_POINTS;
+	}
+	else if(solidType == 1){
+		vertices = _octahedron_points;
+		numVertices = OCTAHEDRON_POINTS;
+	}
+	else if(solidType == 2){
+		vertices = _hexahedron_points;
+		numVertices = HEXAHEDRON_POINTS;
+	}
+	else if(solidType == 3){
+		vertices = _icosahedron_points;
+		numVertices = ICOSAHEDRON_POINTS;
+	}
+	else if(solidType == 4){
+		vertices = _dodecahedron_points;
+		numVertices = DODECAHEDRON_POINTS;
+	}
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, vertices);
+	glNormalPointer(GL_FLOAT, 0, vertices);
+	glDrawArrays(GL_POINTS, 0, numVertices);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+}
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
 
@@ -110,10 +141,14 @@ static unsigned int UP_PRESSED = 0;    // KEY UP:0   KEY DOWN:1
 static unsigned int DOWN_PRESSED = 0;
 static unsigned int RIGHT_PRESSED = 0;
 static unsigned int LEFT_PRESSED = 0;
-static int mouseDragOffsetX = 0;  // how far mouse is dragged during one session (between click and release)
+static unsigned int PLUS_PRESSED = 0;
+static unsigned int MINUS_PRESSED = 0;
+// set default rotation here:
+// how far mouse has been dragged
+static int mouseTotalOffsetX = 90;  // since program began
+static int mouseTotalOffsetY = 90;
+static int mouseDragOffsetX = 0;  // dragging during one session (between click and release)
 static int mouseDragOffsetY = 0;
-static int mouseTotalOffsetX = 0;  // how far mouse has been dragged since program began
-static int mouseTotalOffsetY = 0;
 // helpers
 static int mouseDragStartX = 0;
 static int mouseDragStartY = 0;
@@ -162,9 +197,11 @@ void init(){
 	glEnable(GL_LIGHT2);
 	glCullFace(GL_FRONT);
 	glEnable(GL_CULL_FACE);
-	glShadeModel(GL_FLAT);
+	// glShadeModel(GL_FLAT);
 	glShadeModel (GL_SMOOTH);
+	glEnable( GL_POINT_SMOOTH );
 	glLineWidth(5);
+	glPointSize(10);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
@@ -239,7 +276,9 @@ void display(){
 		glEnable(GL_LIGHTING);
 
 		glPushMatrix();
-			if(seeThrough)
+			if(seeThrough == 2)
+				drawPlatonicSolidPoints(selected_solid);
+			else if(seeThrough == 1)
 				drawPlatonicSolidLines(selected_solid);
 			else
 				drawPlatonicSolidFaces(selected_solid);
@@ -268,9 +307,9 @@ void updateOrthographic(){
 
 // process input devices if in polar perspective mode
 void updatePolar(){
-	if(UP_PRESSED)
+	if(PLUS_PRESSED)
 		cameraRadius -= STEP;
-	if(DOWN_PRESSED)
+	if(MINUS_PRESSED)
 		cameraRadius += STEP;
 	if(cameraRadius < 0) 
 		cameraRadius = 0;
@@ -313,8 +352,13 @@ void keyboardDown(unsigned char key, int x, int y){
 		RIGHT_PRESSED = 1;
 	else if(key == 100)  // D
 		LEFT_PRESSED = 1;
+	else if(key == '+' || key == '=') // PLUS
+		PLUS_PRESSED = 1;
+	else if(key == '-' || key == '_') // MINUS
+		MINUS_PRESSED = 1;
+
 	else if(key == ' '){  // SPACE BAR
-		seeThrough = !seeThrough;
+		seeThrough = (seeThrough+1)%3;
 	}
 	else if(key == '1') selected_solid = 0;
 	else if(key == '2') selected_solid = 1;
@@ -353,6 +397,10 @@ void keyboardUp(unsigned char key,int x,int y){
 		RIGHT_PRESSED = 0;
 	else if(key == 100) // D
 		LEFT_PRESSED = 0;
+	else if(key == '+' || key == '=') // PLUS
+		PLUS_PRESSED = 0;
+	else if(key == '-' || key == '_') // MINUS
+		MINUS_PRESSED = 0;
 	
 	if(!(UP_PRESSED || DOWN_PRESSED || RIGHT_PRESSED || LEFT_PRESSED))
 		glutIdleFunc(NULL);
