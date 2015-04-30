@@ -11,145 +11,22 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "platonic.h"
+#include "platonic.c"
 
-
-////////////////////////////////////////////////////////
-//    OpenGL ES convenience functions for platonic.h
+////////////////////////////////////////////////////
 //
-void drawPlatonicSolidFaces(char solidType){
-	const float *vertices;
-	const unsigned short *faces;
-	unsigned int numFaces;
-	if(solidType == 0){
-		vertices = _tetrahedron_points;
-		numFaces = TETRAHEDRON_FACES;
-		faces = _tetrahedron_faces;
-	}
-	else if(solidType == 1){
-		vertices = _octahedron_points;
-		numFaces = OCTAHEDRON_FACES;
-		faces = _octahedron_faces;
-	}
-	else if(solidType == 2){
-		vertices = _hexahedron_points;
-		numFaces = HEXAHEDRON_TRIANGLE_FACES;
-		faces = _hexahedron_triangle_faces;
-	}
-	else if(solidType == 3){
-		vertices = _icosahedron_points;
-		numFaces = ICOSAHEDRON_FACES;
-		faces = _icosahedron_faces;
-	}
-	else if(solidType == 4){
-		vertices = _dodecahedron_points;
-		numFaces = DODECAHEDRON_TRIANGLE_FACES;
-		faces = _dodecahedron_triangle_faces;
-	}
-	else if(solidType == -1){
-		vertices = _tetrahedron_dual_points;
-		numFaces = TETRAHEDRON_FACES;
-		faces = _tetrahedron_faces;
-	}
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
-	glNormalPointer(GL_FLOAT, 0, vertices);
-	glDrawElements(GL_TRIANGLES, 3*numFaces, GL_UNSIGNED_SHORT, faces);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-}
-void drawPlatonicSolidLines(char solidType){
-	const float *vertices;
-	const unsigned short *lines;
-	unsigned int numLines;
-	if(solidType == 0){
-		vertices = _tetrahedron_points;
-		numLines = TETRAHEDRON_LINES;
-		lines = _tetrahedron_lines;
-	}
-	else if(solidType == 1){
-		vertices = _octahedron_points;
-		numLines = OCTAHEDRON_LINES;
-		lines = _octahedron_lines;
-	}
-	else if(solidType == 2){
-		vertices = _hexahedron_points;
-		numLines = HEXAHEDRON_LINES;
-		lines = _hexahedron_lines;
-	}
-	else if(solidType == 3){
-		vertices = _icosahedron_points;
-		numLines = ICOSAHEDRON_LINES;
-		lines = _icosahedron_lines;
-	}
-	else if(solidType == 4){
-		vertices = _dodecahedron_points;
-		numLines = DODECAHEDRON_LINES;
-		lines = _dodecahedron_lines;
-	}
-	else if(solidType == -1){
-		vertices = _tetrahedron_dual_points;
-		numLines = TETRAHEDRON_LINES;
-		lines = _tetrahedron_lines;
-	}
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
-	glNormalPointer(GL_FLOAT, 0, vertices);
-	glDrawElements(GL_LINES, 2*numLines, GL_UNSIGNED_SHORT, lines);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-}
-void drawPlatonicSolidPoints(char solidType){
-	const float *vertices;
-	unsigned int numVertices;
-	if(solidType == 0){
-		vertices = _tetrahedron_points;
-		numVertices = TETRAHEDRON_POINTS;
-	}
-	else if(solidType == 1){
-		vertices = _octahedron_points;
-		numVertices = OCTAHEDRON_POINTS;
-	}
-	else if(solidType == 2){
-		vertices = _hexahedron_points;
-		numVertices = HEXAHEDRON_POINTS;
-	}
-	else if(solidType == 3){
-		vertices = _icosahedron_points;
-		numVertices = ICOSAHEDRON_POINTS;
-	}
-	else if(solidType == 4){
-		vertices = _dodecahedron_points;
-		numVertices = DODECAHEDRON_POINTS;
-	}
-	else if(solidType == -1){
-		vertices = _tetrahedron_dual_points;
-		numVertices = TETRAHEDRON_POINTS;
-	}
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
-	glNormalPointer(GL_FLOAT, 0, vertices);
-	glDrawArrays(GL_POINTS, 0, numVertices);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-}
-////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
-
-
-
 // CHOOSE YOUR OWN PERSPECTIVE
 //
-// 0: first person perspective, X Y movement
-// 1: polar, focus on origin, Y radius
-// 2: orthographic from above, X Y panning
-static int PERSPECTIVE = 1;
+// first persion perspective, polar, orthographic
+typedef enum{ 
+	FPP,  POLAR,  ORTHO 
+} perspective_t;
+
+static perspective_t POV = POLAR;
 // size of window in OS
-static int windowWidth = 800;
-static int windowHeight = 400;
+static int WIDTH = 800;
+static int HEIGHT = 400;
+static unsigned char FULLSCREEN = 0;  // fullscreen:1   window:0
 // INPUT HANDLING
 static unsigned int UP_PRESSED = 0;    // KEY UP:0   KEY DOWN:1
 static unsigned int DOWN_PRESSED = 0;
@@ -163,23 +40,19 @@ static int mouseTotalOffsetX = 90;  // since program began
 static int mouseTotalOffsetY = 90;
 static int mouseDragOffsetX = 0;  // dragging during one session (between click and release)
 static int mouseDragOffsetY = 0;
-// helpers
-static int mouseDragStartX = 0;
-static int mouseDragStartY = 0;
-static int mouseTotalOffsetStartX = 0;
-static int mouseTotalOffsetStartY = 0;
-
-// POLAR PERSPECTIVE
-static float cameraRadius = 3.0f;
-// ORTHOGRAPHIC
-static float panX = 0.0f;
-static float panY = 0.0f;
+static int mouseDragStartX, mouseDragStartY, mouseTotalOffsetStartX, mouseTotalOffsetStartY;
+// PERSPECTIVE
+static float walkX = 0.0f;
+static float walkY = 0.0f;
+static float polarRadius = 3.0f;  // POLAR PERSPECTIVE
+static unsigned char landscape = 0;  // checkerboard or axes lines
 // LIGHTING
 static GLfloat light_position1[] = { 5.0, 5.0, 5.0, 0.0 };
 static GLfloat light_position2[] = { -5.0, 5.0, -5.0, 0.0 };
 static GLfloat light_position3[] = { -5.0, -5.0, 5.0, 0.0 };
 
 #define STEP .10f  // WALKING SPEED. @60fps, walk speed = 6 units/second
+#define MOUSE_SENSITIVITY 0.333f
 
 char selected_solid = 0;
 unsigned short seeThrough = 0;
@@ -220,15 +93,15 @@ void init(){
 }
 
 void reshape(int w, int h){
-	windowWidth = w;
-	windowHeight = h;
-	float a = (float)windowWidth / windowHeight;
+	WIDTH = w;
+	HEIGHT = h;
+	float a = (float)WIDTH / HEIGHT;
 	glViewport(0,0,(GLsizei) w, (GLsizei) h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	if(PERSPECTIVE == 1)
+	if(POV == POLAR)
 		glFrustum (-.1, .1, -.1/a, .1/a, .1, 100.0);
-	else if (PERSPECTIVE == 2)
+	else if (POV == ORTHO)
 		glOrtho(-3.0f, 3.0f, 
 				-3.0f/a, 3.0f/a, 
 				-100.0, 100.0);
@@ -238,8 +111,10 @@ void reshape(int w, int h){
 
 // draws a XY 1x1 square in the Z = 0 plane
 void unitSquare(float x, float y, float width, float height){
-	static const GLfloat _unit_square_vertex[] = { -0.5f, 0.5f, 0.0f,     0.5f, 0.5f, 0.0f,    -0.5f, -0.5f, 0.0f,    0.5f, -0.5f, 0.0f };
-	static const GLfloat _unit_square_normals[] = { 0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 1.0f  };
+	static const GLfloat _unit_square_vertex[] = { 
+		0.0f, 1.0f, 0.0f,     1.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f };
+	static const GLfloat _unit_square_normals[] = { 
+		0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f };
 	glPushMatrix();
 	glTranslatef(x, y, 0.0);
 	glScalef(width, height, 1.0);
@@ -252,40 +127,93 @@ void unitSquare(float x, float y, float width, float height){
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glPopMatrix();
 }
+void unitAxis(float x, float y, float z, float scale){
+	static const GLfloat _unit_axis_vertices[] = { 
+		1.0f, 0.0f, 0.0f,    -1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,     0.0f, -1.0f, 0.0f,
+		0.0f, 0.0f, 1.0f,     0.0f, 0.0f, -1.0f};
+	static const GLfloat _unit_axis_normals[] = { 
+		0.0f, 1.0f, 1.0f,     0.0f, 1.0f, 1.0f, 
+		0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f,     1.0f, 0.0f, 0.0f};
+	glPushMatrix();
+	glTranslatef(x, y, z);
+	glScalef(scale, scale, scale);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, _unit_axis_vertices);
+	glNormalPointer(GL_FLOAT, 0, _unit_axis_normals);
+	glDrawArrays(GL_LINES, 0, 6);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glPopMatrix();
+}
+
+void drawCheckerboard(float walkX, float walkY, int numSquares){
+	int XOffset = ceil(walkX);
+	int YOffset = ceil(walkY);
+	for(int i = -numSquares; i <= numSquares; i++){
+		for(int j = -numSquares; j <= numSquares; j++){
+			int b = abs(((i+j+XOffset+YOffset)%2));
+			if(b) glColor3f(1.0, 1.0, 1.0);
+			else glColor3f(0.0, 0.0, 0.0);
+			unitSquare(i-XOffset, j-YOffset, 1, 1);
+		}
+	}
+}
+
+float modulusContext(float complete, int modulus){
+	double wholePart;
+	double fracPart = modf(complete, &wholePart);
+	return ( ((int)wholePart) % modulus ) + fracPart;
+}
 
 void display(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
 	glPushMatrix();
-		// apply perspective inside this matrix
-		if(PERSPECTIVE == 1){
-			glTranslatef(0, 0, -cameraRadius);
-			glRotatef(mouseTotalOffsetY, -1, 0, 0);
-			glRotatef(mouseTotalOffsetX, 0, 0, -1);
-		}
-		if(PERSPECTIVE == 2){
-			glTranslatef(-mouseTotalOffsetX * .05 /20.0*3.0 - panX*2, mouseTotalOffsetY * .05 /20.0*3.0 - panY*2, 0.0f);
+		// SETUP PERSPECTIVE
+		switch(POV){
+			case FPP:
+				glRotatef(mouseTotalOffsetY * MOUSE_SENSITIVITY, -1, 0, 0);
+				glRotatef(mouseTotalOffsetX * MOUSE_SENSITIVITY, 0, 0, -1);
+				break;
+		
+			case POLAR:
+				glTranslatef(0, 0, -polarRadius);
+				glRotatef(mouseTotalOffsetY * MOUSE_SENSITIVITY, -1, 0, 0);
+				glRotatef(mouseTotalOffsetX * MOUSE_SENSITIVITY, 0, 0, -1);
+				break;
+
+			case ORTHO:
+				glTranslatef(-mouseTotalOffsetX * .0075, mouseTotalOffsetY * .0075, 0.0f);
 		}
 
 		// perspective has been established
 		// draw stuff below
 
 		glDisable(GL_LIGHTING);
-		
-		glPushMatrix();
-			glTranslatef(0.0f, 0.0f, -1.0f);
-			int XOffset = 0;
-			int ZOffset = 0;
-			for(int i = -8; i <= 8; i++){
-				for(int j = -8; j <= 8; j++){
-					int b = abs(((i+j+XOffset+ZOffset)%2));
-					if(b) glColor3f(0.0, 0.0, 0.0);
-					else glColor3f(1.0, 1.0, 1.0);
-					unitSquare(i-XOffset, j-ZOffset, 1, 1);
-				}
-			}
-		glPopMatrix();
+
+		if(!landscape){
+			glPushMatrix();
+			float newX = modulusContext(walkX, 2);
+			float newY = modulusContext(walkY, 2);
+			glTranslatef(newX, newY, -1.0f);
+			drawCheckerboard(newX, newY, 8);
+			glPopMatrix();
+		}
+		// 3 DIMENSIONS OF SCATTERED AXES
+		else{
+			// float newX = modulusContext(walkX, 5);
+			// float newY = modulusContext(walkY, 5);
+			// glTranslatef(newX, newY, 0);
+			// drawAxesGrid(newX, newY, 5, 4);
+			glColor3f(1.0f, 1.0f, 1.0f);
+			glLineWidth(1);
+			unitAxis(0.0f, 0.0f, 0.0f, 3.0f);
+			glLineWidth(5);
+		}
 
 		glEnable(GL_LIGHTING);
 
@@ -304,29 +232,37 @@ void display(){
 	glutSwapBuffers();
 	// glFlush();
 }
+// process input devices if in first person perspective mode
+void update(){
+	float lookAzimuth = 0;
+	// map movement direction to the direction the person is facing
+	if(POV == FPP)
+		lookAzimuth = (mouseTotalOffsetX * MOUSE_SENSITIVITY)/180.*M_PI;
 
-// process input devices if in orthographic mode
-void updateOrthographic(){
-	if(UP_PRESSED)
-		panY -= STEP;
-	if(DOWN_PRESSED)
-		panY += STEP;
-	if(LEFT_PRESSED)
-		panX -= STEP;
-	if(RIGHT_PRESSED)
-		panX += STEP;
-	// reshape(windowWidth, windowHeight);
-	glutPostRedisplay();
-}
-
-// process input devices if in polar perspective mode
-void updatePolar(){
-	if(PLUS_PRESSED)
-		cameraRadius -= STEP;
+	if(UP_PRESSED){
+		walkX += STEP * sinf(lookAzimuth);
+		walkY += STEP * -cosf(lookAzimuth);
+	}
+	if(DOWN_PRESSED){
+		walkX -= STEP * sinf(lookAzimuth);
+		walkY -= STEP * -cosf(lookAzimuth);
+	}
+	if(LEFT_PRESSED){
+		walkX -= STEP * sinf(lookAzimuth+M_PI_2);
+		walkY -= STEP * -cosf(lookAzimuth+M_PI_2);
+	}
+	if(RIGHT_PRESSED){
+		walkX += STEP * sinf(lookAzimuth+M_PI_2);
+		walkY += STEP * -cosf(lookAzimuth+M_PI_2);
+	}
 	if(MINUS_PRESSED)
-		cameraRadius += STEP;
-	if(cameraRadius < 0) 
-		cameraRadius = 0;
+		polarRadius += STEP;
+	if(PLUS_PRESSED){
+		polarRadius -= STEP;
+		if(polarRadius < 0) 
+			polarRadius = 0;
+	}
+
 	glutPostRedisplay();
 }
 
@@ -370,9 +306,22 @@ void keyboardDown(unsigned char key, int x, int y){
 		PLUS_PRESSED = 1;
 	else if(key == '-' || key == '_') // MINUS
 		MINUS_PRESSED = 1;
-
 	else if(key == ' '){  // SPACE BAR
 		seeThrough = (seeThrough+1)%3;
+	}
+	else if(key == 'l'){  // LANDSCAPE
+		landscape = !landscape;
+		reshape(WIDTH, HEIGHT);
+		glutPostRedisplay();
+	}
+	else if(key == 'f'){
+		if(!FULLSCREEN)
+			glutFullScreen();
+		else{
+			reshape(WIDTH, HEIGHT);
+        	glutPositionWindow(0,0);
+		}
+		FULLSCREEN = !FULLSCREEN;
 	}
 	else if(key == '1') selected_solid = 0;
 	else if(key == '2') selected_solid = 1;
@@ -381,25 +330,22 @@ void keyboardDown(unsigned char key, int x, int y){
 	else if(key == '5') selected_solid = 4;
 	else if(key == '0') selected_solid = -1;
 	else if(key == 'p'){
-		PERSPECTIVE = 1;
+		POV = POLAR;
 		// mouseTotalOffsetX = mouseTotalOffsetY = 0;
-		reshape(windowWidth, windowHeight);
+		reshape(WIDTH, HEIGHT);
 		glutPostRedisplay();
 	}
 	else if(key == 'o'){
-		PERSPECTIVE = 2;
+		POV = ORTHO;
 		mouseTotalOffsetX = mouseTotalOffsetY = 0;
-		reshape(windowWidth, windowHeight);
+		reshape(WIDTH, HEIGHT);
 		glutPostRedisplay();	
 	}
 	
 	// anything that affects the screen and requires a redisplay
 	// put it in this if statement
 	// if(UP_PRESSED || DOWN_PRESSED || RIGHT_PRESSED || LEFT_PRESSED){
-		if(PERSPECTIVE == 1)
-			glutIdleFunc(updatePolar);
-		if(PERSPECTIVE == 2)
-			glutIdleFunc(updateOrthographic);
+	glutIdleFunc(update);
 	// }
 }
 
@@ -417,7 +363,7 @@ void keyboardUp(unsigned char key,int x,int y){
 	else if(key == '-' || key == '_') // MINUS
 		MINUS_PRESSED = 0;
 	
-	if(!(UP_PRESSED || DOWN_PRESSED || RIGHT_PRESSED || LEFT_PRESSED))
+	if(!(UP_PRESSED || DOWN_PRESSED || RIGHT_PRESSED || LEFT_PRESSED || PLUS_PRESSED || MINUS_PRESSED))
 		glutIdleFunc(NULL);
 }
 
@@ -425,7 +371,7 @@ int main(int argc, char **argv){
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowPosition(10,10);
-	glutInitWindowSize(windowWidth,windowHeight);
+	glutInitWindowSize(WIDTH,HEIGHT);
 	glutCreateWindow(argv[0]);
 	init();
 	glutDisplayFunc(display);
