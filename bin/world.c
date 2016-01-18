@@ -11,15 +11,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "platonic.c"
+#include "../platonic.c"
 
-////////////////////////////////////////////////////
-//
-// CHOOSE YOUR OWN PERSPECTIVE
-//
-// first persion perspective, polar, orthographic
+
 typedef enum{ 
-	FPP,  POLAR,  ORTHO 
+	POLAR,  ORTHO 
 } perspective_t;
 
 static perspective_t POV = POLAR;
@@ -36,7 +32,7 @@ static unsigned int PLUS_PRESSED = 0;
 static unsigned int MINUS_PRESSED = 0;
 // set default rotation here:
 // how far mouse has been dragged
-static int mouseTotalOffsetX = 90;  // since program began
+static int mouseTotalOffsetX = 0;  // since program began
 static int mouseTotalOffsetY = 90;
 static int mouseDragOffsetX = 0;  // dragging during one session (between click and release)
 static int mouseDragOffsetY = 0;
@@ -175,10 +171,6 @@ void display(){
 	glPushMatrix();
 		// SETUP PERSPECTIVE
 		switch(POV){
-			case FPP:
-				glRotatef(mouseTotalOffsetY * MOUSE_SENSITIVITY, -1, 0, 0);
-				glRotatef(mouseTotalOffsetX * MOUSE_SENSITIVITY, 0, 0, -1);
-				break;
 		
 			case POLAR:
 				glTranslatef(0, 0, -polarRadius);
@@ -197,18 +189,11 @@ void display(){
 
 		if(!landscape){
 			glPushMatrix();
-			float newX = modulusContext(walkX, 2);
-			float newY = modulusContext(walkY, 2);
-			glTranslatef(newX, newY, -1.0f);
-			drawCheckerboard(newX, newY, 8);
-			glPopMatrix();
-		}
-		// 3 DIMENSIONS OF SCATTERED AXES
+				glTranslatef(0.0f, 0.0f, -1.0f);
+				drawCheckerboard(0.0f, 0.0f, 8);
+			glPopMatrix();	
+		}	
 		else{
-			// float newX = modulusContext(walkX, 5);
-			// float newY = modulusContext(walkY, 5);
-			// glTranslatef(newX, newY, 0);
-			// drawAxesGrid(newX, newY, 5, 4);
 			glColor3f(1.0f, 1.0f, 1.0f);
 			glLineWidth(1);
 			unitAxis(0.0f, 0.0f, 0.0f, 3.0f);
@@ -236,8 +221,8 @@ void display(){
 void update(){
 	float lookAzimuth = 0;
 	// map movement direction to the direction the person is facing
-	if(POV == FPP)
-		lookAzimuth = (mouseTotalOffsetX * MOUSE_SENSITIVITY)/180.*M_PI;
+
+	// lookAzimuth = (mouseTotalOffsetX * MOUSE_SENSITIVITY)/180.*M_PI;
 
 	if(UP_PRESSED){
 		walkX += STEP * sinf(lookAzimuth);

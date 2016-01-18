@@ -1,24 +1,30 @@
 # Platonic Solids
+
+`platonic.h` raw geometry data
+
+`platonic.c` rendering functions
+
+# features
 * polyhedra are aligned according to their duals
-* geometry data arrays are sorted to match indices across duals (octa's 2nd point in the array corresponds to cube's 2nd face in its array), so, an object's face normals are its dual's vertices.
-* one vertex is aligned along +X, if possible another along +Y
-* except hexahedron and dodecahedron, since they are aligned to their duals (octa and icosa) they are face-aligned along +X
-* additional triangle-only face arrays (OpenGL ES) for hexahedron and dodecahedron
+    * this means each face lies along its dual's point
+    * even the indices are aligned, a face index is its dual's point index
+    * this means an object's face normal data is its dual's point data
+* at least one vertex lies along +X axis, and if possible another along +Y
+    * except hexahedron and dodecahedron, since they are aligned to their duals (they are face-aligned along +X)
+* each polyhedra is centered at origin
+* each polyhedra's circumradius is 1.0 (center to point)
 * clockwise winding
-* radius 1.0
-* centered at origin
+* OpenGL ES compatible (triangles only)
 
 ![sample](https://raw.github.com/robbykraft/Platonic/master/sample.gif)
 
 # try it out
-* type `make` then `./world`
-* cross-platform Mac, Linux, Windows
+* example app is cross-platform Mac, Linux, Windows
+* type `make` then `make run`
 
 # input
-* `1`:tetra, `2`:octa, `3`:hexa, `4`:icosa, `5`:dodeca
+* `1` - `5` select between: tetra, octa, hexa, icosa, dodeca
 * `SPACE BAR` toggle faces/lines/points
-* mouse rotate
-* `+` `-` zoom in/out
 
 # license
 MIT

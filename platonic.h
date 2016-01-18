@@ -16,14 +16,14 @@
 //                                                                //
 //  eg:                                                           //
 //   octa's 6 point indices correlate to hexa's 6 face indices    //
-//      and octa's point[0] is along hexa's face[0] normal        //
+//       and octa's point[0] is along hexa's face[0] normal       //
 //                                                                //
-//  this implies:                                                 //
-//  you can find a solid's face normals in its dual's points      //
+//      this means: a solid's face normal is that same index      //
+//                  in its dual's point array                     //
 //                                                                //
 ////////////////////////////////////////////////////////////////////
 
-// for higher precision, replace all "float" with "double" or "long double"
+// for higher precision replace occurrences of "float" with "double" or "long double"
 
 #define TETRAHEDRON_POINTS 4
 #define TETRAHEDRON_LINES 6
@@ -75,11 +75,6 @@
 #define ICOSAHEDRON_VOLUME    2.53615071012040952564383822238
 #define DODECAHEDRON_VOLUME   2.78516386312262296729255491273
 
-const float _tetrahedron_dual_points[TETRAHEDRON_POINTS*3] = { 
-	-1.0,               0.0,               0.0,               
-	0.333333333333333,  0.942809041582063, 0.0,               
-	0.333333333333333,  -0.471404520791032, 0.816496580927726, 
-	0.333333333333333,  -0.471404520791032, -0.816496580927726};
 const float _tetrahedron_points[TETRAHEDRON_POINTS*3] = { 
 	1.0,                 0.0,               0.0,               
 	-0.333333333333333, -0.942809041582063, 0.0,               
@@ -88,9 +83,21 @@ const float _tetrahedron_points[TETRAHEDRON_POINTS*3] = {
 const unsigned short _tetrahedron_lines[TETRAHEDRON_LINES*2] = {
 	2, 3, 2, 0, 2, 1, 3, 0, 3, 1, 0, 1};
 const unsigned short _tetrahedron_faces[TETRAHEDRON_FACES*3] = {
-	2, 0, 1,  
 	2, 1, 3,  
 	2, 3, 0,  
+	2, 0, 1,  
+	3, 1, 0};
+const float _tetrahedron_dual_points[TETRAHEDRON_POINTS*3] = { 
+	-1.0,               0.0,               0.0,               
+	0.333333333333333,  0.942809041582063, 0.0,               
+	0.333333333333333,  -0.471404520791032, 0.816496580927726, 
+	0.333333333333333,  -0.471404520791032, -0.816496580927726};
+const unsigned short _tetrahedron_dual_lines[TETRAHEDRON_LINES*2] = {
+	2, 3, 2, 0, 2, 1, 3, 0, 3, 1, 0, 1};
+const unsigned short _tetrahedron_dual_faces[TETRAHEDRON_FACES*3] = {
+	2, 1, 3,  
+	2, 3, 0,  
+	2, 0, 1,  
 	3, 1, 0};
 const float _octahedron_points[OCTAHEDRON_POINTS*3] = {
 	1.0, 0.0, 0.0,
