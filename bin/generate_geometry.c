@@ -1,7 +1,8 @@
-#include "platonic.h"
+#include "../platonic.h"
 
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define PHI        1.61803398874989484820458683436563811   /* (1+sqrt(5))/2  */
 #define M_2PI      6.28318530717958647693528676655900576
@@ -11,15 +12,15 @@
 // this was used to help generate the geometry included in this project
 // to do:  the hexahedron, and the faces on the dodecahedron
 
-void _generate_tetrahedron(flo_t **po, unsigned int *numPoints,
+void _generate_tetrahedron(long double **po, unsigned int *numPoints,
                            unsigned short **li, unsigned int *numLines,
                            unsigned short **fa, unsigned int *numFaces){
-    flo_t side = SQRT_p_5;
-    flo_t f = SQRT_1_p_5;
+    long double side = SQRT_p_5;
+    long double f = SQRT_1_p_5;
     *numPoints = 4;
     *numLines = 6;
     *numFaces = 4;
-    flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);
+    long double *points = malloc(sizeof(long double)*(*numPoints)*3);
     points[0+3*0] = 0.0;     points[1+3*0] = 1.0/f;   points[2+3*0] = side/f;
     points[0+3*1] = 0.0;     points[1+3*1] = -1.0/f;  points[2+3*1] = side/f;
     points[0+3*2] = 1.0/f;   points[1+3*2] = 0.0;     points[2+3*2] = -side/f;
@@ -37,8 +38,8 @@ void _generate_tetrahedron(flo_t **po, unsigned int *numPoints,
     faces[0+3*2] = 0;  faces[1+3*2] = 2;  faces[2+3*2] = 1;
     faces[0+3*3] = 1;  faces[1+3*3] = 2;  faces[2+3*3] = 3;
     // rotate and align one point to X axis
-    flo_t offset = 0.615479708670387;
-    flo_t distance, angle;
+    long double offset = 0.615479708670387;
+    long double distance, angle;
     for(int i = 0; i < *numPoints; i++){
         angle = atan2(points[i*3+2], points[i*3+0]);
         distance = sqrt( pow(points[i*3+2], 2) + pow(points[i*3+0], 2) );
@@ -51,13 +52,13 @@ void _generate_tetrahedron(flo_t **po, unsigned int *numPoints,
     *fa = faces;
 }
 
-void _generate_octahedron(flo_t **po, unsigned int *numPoints,
+void _generate_octahedron(long double **po, unsigned int *numPoints,
                           unsigned short **li, unsigned int *numLines,
                           unsigned short **fa, unsigned int *numFaces){
     *numPoints = 6;
     *numLines = 12;
     *numFaces = 8;
-    flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);
+    long double *points = malloc(sizeof(long double)*(*numPoints)*3);
     points[0+3*0] = 0.0;   points[1+3*0] = 1.0;   points[2+3*0] = 0.0;
     points[0+3*1] = 1.0;   points[1+3*1] = 0.0;   points[2+3*1] = 0.0;
     points[0+3*2] = 0.0;   points[1+3*2] = 0.0;   points[2+3*2] = -1.0;
@@ -91,14 +92,14 @@ void _generate_octahedron(flo_t **po, unsigned int *numPoints,
     *fa = faces;
 }
 
-void _generate_icosahedron(flo_t **po, unsigned int *numPoints,
+void _generate_icosahedron(long double **po, unsigned int *numPoints,
                            unsigned short **li, unsigned int *numLines,
                            unsigned short **fa, unsigned int *numFaces){
-    flo_t f = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
+    long double f = sqrt( ((1 + sqrt(5)) / 2 ) + 2 );
     *numPoints = 12;
     *numLines = 30;
     *numFaces = 20;
-    flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);
+    long double *points = malloc(sizeof(long double)*(*numPoints)*3);
     points[0+3*0] = 0.0;     points[1+3*0] = 1.0/f;    points[2+3*0] = PHI/f;
     points[0+3*1] = 0.0;     points[1+3*1] = -1.0/f;   points[2+3*1] = PHI/f;
     points[0+3*2] = 0.0;     points[1+3*2] = -1.0/f;   points[2+3*2] = -PHI/f;
@@ -166,8 +167,8 @@ void _generate_icosahedron(flo_t **po, unsigned int *numPoints,
     faces[0+3*18] = 10;  faces[1+3*18] = 5;   faces[2+3*18] = 1;
     faces[0+3*19] = 10;  faces[1+3*19] = 2;   faces[2+3*19] = 6;
     // align 2 points along the X
-    flo_t offset =  (M_2PI/4.) - atan( (1 + sqrt(5)) / 2 ) + M_2PI*.25;
-    flo_t distance, angle;
+    long double offset =  (M_2PI/4.) - atan( (1 + sqrt(5)) / 2 ) + M_2PI*.25;
+    long double distance, angle;
     //rotate around the z until points aligned
     for(int i = 0; i < *numPoints; i++){
         angle = atan2(points[i*3+0], points[i*3+1]);
@@ -182,14 +183,14 @@ void _generate_icosahedron(flo_t **po, unsigned int *numPoints,
 }
 
 
-void _generate_dodecahedron(flo_t **po, unsigned int *numPoints,
+void _generate_dodecahedron(long double **po, unsigned int *numPoints,
                             unsigned short **li, unsigned int *numLines){
                          // unsigned short **fa, unsigned int *numFaces){
-    flo_t SQRT3 = sqrt(3);
+    long double SQRT3 = sqrt(3);
     *numPoints = 20;
     *numLines = 30;
     // *numFaces = 12;
-    flo_t *points = malloc(sizeof(flo_t)*(*numPoints)*3);
+    long double *points = malloc(sizeof(long double)*(*numPoints)*3);
 
     points[0+3*0] = 1/SQRT3;          points[1+3*0] = 1/SQRT3;            points[2+3*0] = 1/SQRT3;
     points[0+3*1] = 1/SQRT3;          points[1+3*1] = 1/SQRT3;            points[2+3*1] = -1/SQRT3;
@@ -249,4 +250,32 @@ void _generate_dodecahedron(flo_t **po, unsigned int *numPoints,
     *po = points;
     *li = lines;
     // *fa = faces;
+}
+
+
+
+int main(){
+    // calculating the dodecahedron points
+    long double *po;
+    unsigned int numPoints;
+    unsigned short *li;
+    unsigned int numLines;
+    _generate_dodecahedron(&po, &numPoints, &li, &numLines);
+    for(int i = 0; i < 20; i++){
+        printf("%Lf, %Lf, %Lf\n", po[i*3+0], po[i*3+1], po[i*3+2]);
+    }
+    // for(long double k = 0.553574; k < 0.553575; k+= .0000001){
+        long double k = 0.553574 + M_PI;
+        printf("+++++++++++++++++++\n");
+        printf("+: %Lf\n",k);
+        printf("+++++++++++++++++++\n");
+        for(int i = 0; i < 20; i++){
+            long double xydist = sqrt(pow(po[i*3+0], 2) + pow(po[i*3+1], 2));
+            long double angle = atan2(po[i*3+1], po[i*3+0]) + k;
+            long double newX = cos(angle) * xydist;
+            long double newY = sin(angle) * xydist;
+            printf("%Lf, %Lf, %Lf\n", newX, newY, po[i*3+2]);
+        }
+    // }
+    return 0;
 }

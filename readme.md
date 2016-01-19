@@ -2,7 +2,7 @@
 
 `platonic.h` raw geometry data
 
-`platonic.c` rendering functions
+`platonic.c` OpenGL rendering
 
 # features
 * polyhedra are aligned according to their duals
@@ -16,7 +16,7 @@
 * clockwise winding
 * OpenGL ES compatible (triangles only)
 
-![sample](https://raw.github.com/robbykraft/Platonic/master/sample.gif)
+![sample](https://raw.github.com/robbykraft/Platonic/master/bin/sample.gif)
 
 # try it out
 * example app is cross-platform Mac, Linux, Windows
@@ -25,6 +25,7 @@
 # input
 * `1` - `5` select between: tetra, octa, hexa, icosa, dodeca
 * `SPACE BAR` toggle faces/lines/points
+* `D` superimpose polyhedra's dual
 
 # license
 MIT

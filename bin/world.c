@@ -209,6 +209,28 @@ void display(){
 				drawPlatonicSolidLines(selected_solid);
 			else
 				drawPlatonicSolidFaces(selected_solid);
+
+
+			if(LEFT_PRESSED){
+				// D pressed
+				char dualSolid;
+				if(selected_solid == 0)
+					dualSolid = 5;
+				else if(selected_solid == 2 || selected_solid == 4)
+					dualSolid = selected_solid-1;
+				else
+					dualSolid = selected_solid+1;
+				float scale = midradius[selected_solid]/midradius[dualSolid];
+				glPushMatrix();
+				glScalef(scale, scale, scale);
+				if(seeThrough == 2)
+					drawPlatonicSolidPoints(dualSolid);
+				else if(seeThrough == 1)
+					drawPlatonicSolidLines(dualSolid);
+				else
+					drawPlatonicSolidFaces(dualSolid);
+				glPopMatrix();
+			}
 		glPopMatrix();
 
 
@@ -247,6 +269,7 @@ void update(){
 		if(polarRadius < 0) 
 			polarRadius = 0;
 	}
+
 
 	glutPostRedisplay();
 }
@@ -347,14 +370,15 @@ void keyboardUp(unsigned char key,int x,int y){
 		PLUS_PRESSED = 0;
 	else if(key == '-' || key == '_') // MINUS
 		MINUS_PRESSED = 0;
-	
+
+	glutPostRedisplay();
 	if(!(UP_PRESSED || DOWN_PRESSED || RIGHT_PRESSED || LEFT_PRESSED || PLUS_PRESSED || MINUS_PRESSED))
 		glutIdleFunc(NULL);
 }
 
 int main(int argc, char **argv){
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowPosition(10,10);
 	glutInitWindowSize(WIDTH,HEIGHT);
 	glutCreateWindow(argv[0]);
