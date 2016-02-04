@@ -4,7 +4,10 @@
 
 `platonic.c` OpenGL rendering
 
+![sample](https://raw.github.com/robbykraft/Platonic/master/bin/sample.gif)
+
 # features
+* point, line, face geometry, dihedral angle, midradius, inradius, side length, volume
 * polyhedra are aligned according to their duals
     * this means each face lies along its dual's point
     * even the indices are aligned, a face index is its dual's point index
@@ -16,7 +19,9 @@
 * clockwise winding
 * OpenGL ES compatible (triangles only)
 
-![sample](https://raw.github.com/robbykraft/Platonic/master/bin/sample.gif)
+![sample](https://raw.github.com/robbykraft/Platonic/master/bin/midradius.gif)
+
+*example: scale involving midradius*
 
 # try it out
 * example app is cross-platform Mac, Linux, Windows
