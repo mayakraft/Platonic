@@ -67,15 +67,15 @@ void draw(){
 
 			if(keyboard[D_KEY] || keyboard[d_KEY]){
 				// D pressed
-				float scale = platonic_midradius[selected_solid]/platonic_midradius[ _poly_dual_index[selected_solid] ];
+				float scale = platonic_midradius[selected_solid]/platonic_midradius[ _platonic_dual_index[selected_solid] ];
 				glPushMatrix();
 					glScalef(scale, scale, scale);
 					if(seeThrough == 2)
-						drawPlatonicSolidPoints(_poly_dual_index[selected_solid]);
+						drawPlatonicSolidPoints(_platonic_dual_index[selected_solid]);
 					else if(seeThrough == 1)
-						drawPlatonicSolidLines(_poly_dual_index[selected_solid]);
+						drawPlatonicSolidLines(_platonic_dual_index[selected_solid]);
 					else
-						drawPlatonicSolidFaces(_poly_dual_index[selected_solid]);
+						drawPlatonicSolidFaces(_platonic_dual_index[selected_solid]);
 				glPopMatrix();
 			}
 		break;
@@ -83,12 +83,12 @@ void draw(){
 		case 1:
 			drawPlatonicSolidFaces(selected_solid);
 			float elapsed = (float)clock() / (float)CLOCKS_PER_SECOND * 3;
-			float upperBounds = platonic_midradius[selected_solid] / platonic_midradius[ _poly_dual_index[selected_solid] ];
-			float lowerBounds = platonic_inradius[ _poly_dual_index[selected_solid] ];
+			float upperBounds = platonic_midradius[selected_solid] / platonic_midradius[ _platonic_dual_index[selected_solid] ];
+			float lowerBounds = platonic_inradius[ _platonic_dual_index[selected_solid] ];
 			float scale = lowerBounds + ( upperBounds - lowerBounds ) * (sin(elapsed)*.5 + .5);
 			glPushMatrix();
 				glScalef(scale, scale, scale);
-				drawPlatonicSolidFaces( _poly_dual_index[selected_solid] );
+				drawPlatonicSolidFaces( _platonic_dual_index[selected_solid] );
 			glPopMatrix();
 
 		break;
@@ -97,9 +97,9 @@ void draw(){
 			float rotation1 = (float)clock() / (float)CLOCKS_PER_SECOND * 40;
 			glPushMatrix();
 				glRotatef(rotation1, 0, 0, 1);
-				float edgeScale = 1.0 / platonic_midradius[ _poly_dual_index[selected_solid] ];
+				float edgeScale = 1.0 / platonic_midradius[ _platonic_dual_index[selected_solid] ];
 				glScalef(edgeScale, edgeScale, edgeScale);
-				drawPlatonicSolidLines( _poly_dual_index[selected_solid] );
+				drawPlatonicSolidLines( _platonic_dual_index[selected_solid] );
 			glPopMatrix();
 
 		break;
@@ -108,15 +108,15 @@ void draw(){
 			float rotation2;
 			if(selected_solid == 0 || selected_solid == 5)
 				rotation2 = 0;
-			else if(selected_solid == 4 || selected_solid == 3) 
+			else if(selected_solid == 4 || selected_solid == 3)
 				rotation2 = DODECAHEDRON_DIHEDRAL_ANGLE;
 			else
 				rotation2 = 45;
 			glPushMatrix();
 				glRotatef(rotation2, 0, 0, 1);
-				float scale1 = 1.0 / platonic_midradius[ _poly_dual_index[selected_solid] ];
+				float scale1 = 1.0 / platonic_midradius[ _platonic_dual_index[selected_solid] ];
 				glScalef(scale1, scale1, scale1);
-				drawPlatonicSolidLines( _poly_dual_index[selected_solid] );
+				drawPlatonicSolidLines( _platonic_dual_index[selected_solid] );
 				glPushMatrix();
 					glRotatef(rotation2, 0, 0, 1);
 					float scale2 = 1.0 / platonic_midradius[ selected_solid ];
@@ -124,9 +124,9 @@ void draw(){
 					drawPlatonicSolidLines( selected_solid );
 					glPushMatrix();
 						glRotatef(rotation2, 0, 0, 1);
-						float scale3 = 1.0 / platonic_midradius[ _poly_dual_index[selected_solid] ];
+						float scale3 = 1.0 / platonic_midradius[ _platonic_dual_index[selected_solid] ];
 						glScalef(scale3, scale3, scale3);
-						drawPlatonicSolidLines( _poly_dual_index[selected_solid] );
+						drawPlatonicSolidLines( _platonic_dual_index[selected_solid] );
 					glPopMatrix();
 				glPopMatrix();
 			glPopMatrix();

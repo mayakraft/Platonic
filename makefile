@@ -19,7 +19,7 @@ ifeq ($(OSTYPE),darwin)
 endif
 
 $(EXE) : bin/world.c
-	gcc -o $@ $< $(CFLAGS) $(LDFLAGS)
+	gcc -o bin/$@ $< $(CFLAGS) $(LDFLAGS)
 
 run :
 	./$(EXE) $(ARGS)
